@@ -188,7 +188,7 @@ def page_profile():
             save_profile(data)
             if remember_weight:
                 upsert_weight(date.today(), weight, "עודכן מתוך הפרופיל")
-            st.success("הפרופיל נשמר במחשב הזה.")
+            st.success("הפרופיל נשמר לשימוש הנוכחי.")
             if keep_custom:
                 st.info("יעדי התזונה שערכת ידנית נשארו כמו שהיו. אפשר לעדכן אותם בעמוד התזונה.")
             st.rerun()
@@ -390,7 +390,7 @@ def page_progress():
         return
 
     st.subheader("מעקב התקדמות")
-    st.write("כל רשומה נשמרת במחשב. משקל ותזונה נשמרים פעם אחת לכל תאריך, ורשומה חדשה לאותו יום מחליפה את הקודמת.")
+    st.write("כל רשומה נשמרת במהלך השימוש הנוכחי. משקל ותזונה נשמרים פעם אחת לכל תאריך, ורשומה חדשה לאותו יום מחליפה את הקודמת.")
 
     weight_tab, workout_tab, food_tab = st.tabs(["משקל", "אימונים", "תזונה"])
 

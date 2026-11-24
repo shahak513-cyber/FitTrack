@@ -4,6 +4,9 @@
 רשימה ריקה פירושה שהנתונים תקינים.
 """
 
+import math
+import unicodedata
+
 # גבולות לגרסה הראשונה: מבוגרים בריאים, ערכים יומיומיים סבירים.
 MIN_AGE = 18
 MAX_AGE = 80
@@ -32,7 +35,10 @@ SEX_KEYS = ("male", "female")
 def _number(value):
     """מנסה להפוך את הקלט למספר. מחזיר None אם זה לא מספר."""
     try:
-        return float(value)
+        if isinstance(value, bool):
+            return None
+        number = float(value)
+        return number if math.isfinite(number) else None
     except (TypeError, ValueError):
         return None
 
@@ -46,6 +52,12 @@ def validate_profile(data):
         errors.append("צריך למלא שם, כדי שנדע איך לפנות אליך.")
     elif len(name) > 40:
         errors.append("השם ארוך מדי. עד 40 תווים מספיקים.")
+
+    elif not any(c.isalpha() for c in name) or not all(
+        c.isalpha() or unicodedata.category(c).startswith("M") or c in " -'’׳״־"
+        for c in name
+    ):
+        errors.append("השם יכול להכיל אותיות, רווחים וסימני שם בלבד, ללא מספרים.")
 
     age = _number(data.get("age"))
     if age is None or age < MIN_AGE or age > MAX_AGE or int(age) != age:

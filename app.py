@@ -5,6 +5,8 @@
 """
 
 import html
+import tempfile
+from pathlib import Path
 
 import streamlit as st
 
@@ -115,6 +117,19 @@ STYLES = """
         font-weight: 800;
     }
 
+    .hero, .hero h1, .hero p { direction: rtl; text-align: right !important; }
+    [data-testid="stMain"] [data-testid="stMarkdownContainer"] h1,
+    [data-testid="stMain"] [data-testid="stMarkdownContainer"] h2,
+    [data-testid="stMain"] [data-testid="stMarkdownContainer"] h3,
+    [data-testid="stMain"] [data-testid="stMarkdownContainer"] h4,
+    [data-testid="stMain"] [data-testid="stMarkdownContainer"] p,
+    [data-testid="stMain"] [data-testid="stHeading"],
+    [data-testid="stMain"] [data-testid="stHeading"] h2,
+    [data-testid="stMain"] [data-testid="stHeading"] h3 {
+        direction: rtl;
+        text-align: right !important;
+        justify-content: flex-start;
+    }
     footer {visibility: hidden;}
 </style>
 """
@@ -149,15 +164,27 @@ def render_header():
     )
 
 
+def logout():
+    # End the anonymous session and discard its temporary workspace.
+    workspace = st.session_state.get("_workspace")
+    st.session_state.clear()
+    if workspace is not None:
+        workspace.cleanup()
+
+
 def main():
+    if "_workspace" not in st.session_state:
+        st.session_state["_workspace"] = tempfile.TemporaryDirectory(prefix="fittrack_")
+    st.session_state["_db_path"] = str(Path(st.session_state["_workspace"].name) / "fittrack.db")
     init_db()
     st.markdown(STYLES, unsafe_allow_html=True)
 
     st.sidebar.markdown("# FitTrack")
     st.sidebar.write("כושר ותזונה, בקצב שלך.")
-    page_name = st.sidebar.radio("ניווט", list(PAGES.keys()), label_visibility="collapsed")
+    page_name = st.sidebar.radio("ניווט", list(PAGES.keys()), label_visibility="collapsed", key="navigation")
     st.sidebar.divider()
-    st.sidebar.caption("הנתונים נשמרים בקובץ מקומי על המחשב הזה.")
+    st.sidebar.button("התנתקות", on_click=logout)
+    st.sidebar.caption("הנתונים נשמרים במהלך השימוש הנוכחי בלבד. התנתקות מסיימת את השימוש ומאפסת את הפרטים.")
 
     render_header()
     PAGES[page_name]()

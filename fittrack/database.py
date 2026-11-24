@@ -5,6 +5,7 @@
 """
 
 import sqlite3
+import streamlit as st
 from datetime import datetime
 from pathlib import Path
 
@@ -14,8 +15,9 @@ DB_PATH = Path(__file__).resolve().parents[1] / "data" / "fittrack.db"
 
 def connect():
     """פותח חיבור קצר למסד. כל פעולה פותחת וסוגרת חיבור בעצמה."""
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    connection = sqlite3.connect(DB_PATH)
+    path = Path(st.session_state.get("_db_path", str(DB_PATH)))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    connection = sqlite3.connect(path)
     connection.row_factory = sqlite3.Row
     return connection
 
